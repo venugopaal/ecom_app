@@ -1,0 +1,32 @@
+[
+  {
+    "id": "prod_1",
+    "name": "Classic White T-Shirt",
+    "description": "Comfortable cotton t-shirt, unisex fit.",
+    "price": 19.99,
+    "images": ["https://campussutra.com/cdn/shop/files/CSMSSTS7244_1_777d49f7-1a6a-4ab7-9b3c-1f40b93ece42.jpg"],
+    "category": "Clothing",
+    "stock": 120,
+    "ratings": 4.5
+  },
+  {
+    "id": "prod_2",
+    "name": "Running Shoes",
+    "description": "Lightweight running shoes for everyday training.",
+    "price": 79.99,
+    "images": ["https://campussutra.com/cdn/shop/files/CSMSSTS7244_1_777d49f7-1a6a-4ab7-9b3c-1f40b93ece42.jpg"],
+    "category": "Footwear",
+    "stock": 60,
+    "ratings": 4.7
+  },
+  {
+    "id": "prod_3",
+    "name": "Wireless Headphones",
+    "description": "Noise-cancelling over-ear headphones with long battery life.",
+    "price": 129.99,
+    "images": ["https://campussutra.com/cdn/shop/files/CSMSSTS7244_1_777d49f7-1a6a-4ab7-9b3c-1f40b93ece42.jpg"],
+    "category": "Electronics",
+    "stock": 30,
+    "ratings": 4.6
+  }
+]
