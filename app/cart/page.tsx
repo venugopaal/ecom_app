@@ -1,7 +1,7 @@
 "use client"
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import CartItem from '../../components/CartItem'
 import products from '../../data/products.json'
 import { useDispatch } from 'react-redux'
@@ -11,6 +11,11 @@ import Link from 'next/link'
 export default function CartPage() {
   const items = useSelector((s: RootState) => s.cart)
   const dispatch = useDispatch()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const detailed = useMemo(() => items.map(i => ({ item: i, product: products.find((p: any) => p.id === i.productId) })), [items])
 
@@ -19,17 +24,20 @@ export default function CartPage() {
   const tax = subtotal * 0.1
   const total = subtotal + shipping + tax
 
+  // Always show on server render to avoid hydration mismatch
+  const isEmpty = !mounted || detailed.length === 0
+
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">Shopping Cart</h1>
           <p className="text-neutral-600 dark:text-neutral-400 mt-1">
-            {detailed.length === 0 ? 'Your cart is empty' : `${detailed.length} item${detailed.length !== 1 ? 's' : ''} in your cart`}
+            {isEmpty ? 'Your cart is empty' : `${detailed.length} item${detailed.length !== 1 ? 's' : ''} in your cart`}
           </p>
         </div>
 
-        {detailed.length === 0 ? (
+        {isEmpty ? (
           <div className="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 p-12 text-center">
             <svg className="w-16 h-16 text-neutral-300 dark:text-neutral-700 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />

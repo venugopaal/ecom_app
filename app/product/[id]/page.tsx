@@ -2,12 +2,14 @@ import { getProductById } from '../../../lib/data'
 import Image from 'next/image'
 import Link from 'next/link'
 import ProductCard from '../../../components/ProductCard'
+import AddToCartButton from '../../../components/AddToCartButton'
 import { getProducts } from '../../../lib/data'
 
-type Props = { params: { id: string } }
+type Props = { params: Promise<{ id: string }> }
 
 export default async function ProductPage({ params }: Props) {
-  const product = await getProductById(params.id)
+  const { id } = await params
+  const product = await getProductById(id)
   if (!product) {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
@@ -93,27 +95,8 @@ export default async function ProductPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Add to Cart Form */}
-            <form action="/api/cart" method="post" className="space-y-3 mt-auto">
-              <input type="hidden" name="productId" value={product.id} />
-              <button 
-                type="submit"
-                disabled={product.stock === 0}
-                className={`w-full py-3 px-4 rounded-lg font-bold text-lg transition-all duration-200 ${
-                  product.stock === 0
-                    ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 active:scale-95 text-white'
-                }`}
-              >
-                {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-              </button>
-              <button 
-                type="button"
-                className="w-full py-3 px-4 border-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 rounded-lg font-bold hover:bg-blue-50 dark:hover:bg-neutral-800 transition-colors"
-              >
-                Add to Wishlist
-              </button>
-            </form>
+            {/* Add to Cart Button */}
+            <AddToCartButton productId={product.id} stock={product.stock} />
           </div>
         </div>
 

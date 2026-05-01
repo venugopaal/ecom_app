@@ -1,9 +1,9 @@
 "use client"
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { add } from '../store/slices/cartSlice'
+import { add, remove, updateQuantity } from '../store/slices/cartSlice'
 import type { Product } from '../types'
 import { RootState } from '../store'
 
@@ -11,15 +11,32 @@ export default function ProductCard({ product }: { product: Product }) {
   const dispatch = useDispatch()
   const cartItems = useSelector((s: RootState) => s.cart)
   const [showNotif, setShowNotif] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
-  // Calculate total items in cart
-  const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0)
+  // Calculate total items in cart and items of this product
+  const totalCartCount = mounted ? cartItems.reduce((acc, item) => acc + item.quantity, 0) : 0
+  const productCartCount = mounted ? (cartItems.find(item => item.productId === product.id)?.quantity || 0) : 0
   
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     dispatch(add({ productId: product.id, quantity: 1 }))
     setShowNotif(true)
     setTimeout(() => setShowNotif(false), 3000)
+  }
+  
+  const handleRemoveFromCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (productCartCount > 1) {
+      // Decrease quantity by 1
+      dispatch(updateQuantity({ productId: product.id, quantity: productCartCount - 1 }))
+    } else {
+      // Remove completely if quantity is 1
+      dispatch(remove(product.id))
+    }
   }
 
   return (
@@ -58,17 +75,42 @@ export default function ProductCard({ product }: { product: Product }) {
             </div>
           </div>
           
-          <button
-            onClick={handleAddToCart}
-            disabled={product.stock === 0}
-            className={`w-full py-2 px-3 rounded font-medium transition-all duration-200 text-sm ${
-              product.stock === 0
-                ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 active:scale-95 text-white dark:bg-blue-700 dark:hover:bg-blue-800'
-            }`}
-          >
-            Add to Cart
-          </button>
+          {productCartCount > 0 ? (
+            <div className="w-full flex items-center justify-between bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-all duration-200 text-sm overflow-hidden">
+              <button
+                onClick={handleRemoveFromCart}
+                className="flex-1 py-2 px-3 hover:bg-blue-700 transition-colors active:scale-95"
+              >
+                −
+              </button>
+              <span className="flex-1 text-center font-bold py-2">
+                {productCartCount}
+              </span>
+              <button
+                onClick={handleAddToCart}
+                disabled={product.stock === 0}
+                className={`flex-1 py-2 px-3 transition-colors active:scale-95 ${
+                  product.stock === 0
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-blue-700'
+                }`}
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
+              className={`w-full py-2 px-3 rounded font-medium transition-all duration-200 text-sm ${
+                product.stock === 0
+                  ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 active:scale-95 text-white dark:bg-blue-700 dark:hover:bg-blue-800'
+              }`}
+            >
+              Add to Cart
+            </button>
+          )}
           
           <div className={`mt-2 text-xs text-center bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 p-2 rounded font-medium animate-pulse transition-opacity ${
             showNotif ? 'opacity-100' : 'opacity-0 pointer-events-none h-0 overflow-hidden'

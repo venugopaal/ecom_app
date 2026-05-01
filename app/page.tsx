@@ -1,5 +1,6 @@
 import { getProducts, getCategories } from "../lib/data";
 import ProductCard from "../components/ProductCard";
+import FilterSidebar from "../components/FilterSidebar";
 import Link from "next/link";
 
 // Disable static generation for this page since it uses dynamic searchParams
@@ -65,87 +66,14 @@ export default async function Home({ searchParams }: Props) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar - Categories & Filters */}
-          <aside className="lg:col-span-1">
-            <div className="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 p-6 sticky top-20 space-y-6">
-              {/* Categories */}
-              <div>
-                <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">Categories</h3>
-                <nav className="space-y-2">
-                  <Link 
-                    href="/" 
-                    className={`block px-4 py-2 rounded-lg transition-colors ${
-                      !category 
-                        ? 'bg-blue-600 text-white font-medium' 
-                        : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                    }`}
-                  >
-                    All Products
-                  </Link>
-                  {categories.map((c: string) => {
-                    let href = `/?category=${encodeURIComponent(c)}`
-                    if (minPrice > 0 || maxPrice < 1000) {
-                      href += `&minPrice=${minPrice}&maxPrice=${maxPrice}`
-                    }
-                    if (minRating > 0) {
-                      href += `&minRating=${minRating}`
-                    }
-                    return (
-                      <Link
-                        key={c}
-                        href={href}
-                        className={`block px-4 py-2 rounded-lg transition-colors ${
-                          category === c
-                            ? 'bg-blue-600 text-white font-medium'
-                            : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                        }`}
-                      >
-                        {c}
-                      </Link>
-                    )
-                  })}
-                </nav>
-              </div>
-
-              {/* Price Range Filter */}
-              <div className="pt-6 border-t border-neutral-200 dark:border-neutral-700">
-                <h4 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4 uppercase tracking-wide">Price Range</h4>
-                <div className="space-y-2">
-                  <PriceFilterLink label="Under $50" value={50} minPrice={minPrice} maxPrice={maxPrice} category={category} />
-                  <PriceFilterLink label="$50 - $100" min={50} max={100} minPrice={minPrice} maxPrice={maxPrice} category={category} />
-                  <PriceFilterLink label="$100 - $200" min={100} max={200} minPrice={minPrice} maxPrice={maxPrice} category={category} />
-                  <PriceFilterLink label="Over $200" min={200} minPrice={minPrice} maxPrice={maxPrice} category={category} />
-                  {(minPrice > 0 || maxPrice < 1000) && (
-                    <Link 
-                      href={category ? `/?category=${encodeURIComponent(category)}` : "/"} 
-                      className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                    >
-                      Clear Price Filter
-                    </Link>
-                  )}
-                </div>
-              </div>
-
-              {/* Rating Filter */}
-              <div className="pt-6 border-t border-neutral-200 dark:border-neutral-700">
-                <h4 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4 uppercase tracking-wide">Rating</h4>
-                <div className="space-y-2">
-                  <RatingFilterLink label="4★ & up" rating={4} minRating={minRating} category={category} minPrice={minPrice} maxPrice={maxPrice} />
-                  <RatingFilterLink label="3★ & up" rating={3} minRating={minRating} category={category} minPrice={minPrice} maxPrice={maxPrice} />
-                  <RatingFilterLink label="2★ & up" rating={2} minRating={minRating} category={category} minPrice={minPrice} maxPrice={maxPrice} />
-                  <RatingFilterLink label="1★ & up" rating={1} minRating={minRating} category={category} minPrice={minPrice} maxPrice={maxPrice} />
-                  {minRating > 0 && (
-                    <Link 
-                      href={category ? `/?category=${encodeURIComponent(category)}${minPrice > 0 || maxPrice < 1000 ? `&minPrice=${minPrice}&maxPrice=${maxPrice}` : ''}` : "/"} 
-                      className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                    >
-                      Clear Rating Filter
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </div>
-          </aside>
+          {/* Filter Sidebar */}
+          <FilterSidebar 
+            category={category}
+            categories={categories}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            minRating={minRating}
+          />
 
           {/* Products Grid */}
           <section className="lg:col-span-3">
@@ -168,87 +96,5 @@ export default async function Home({ searchParams }: Props) {
         </div>
       </div>
     </>
-  )
-}
-
-// Helper component for price filters
-function PriceFilterLink({ 
-  label, 
-  min = 0, 
-  max = 1000,
-  value,
-  minPrice,
-  maxPrice,
-  category
-}: { 
-  label: string
-  min?: number
-  max?: number
-  value?: number
-  minPrice: number
-  maxPrice: number
-  category: string
-}) {
-  const filterMax = value || max
-  const isActive = minPrice === min && maxPrice === filterMax
-  
-  let href = `/?minPrice=${min}&maxPrice=${filterMax}`
-  if (category) {
-    href += `&category=${encodeURIComponent(category)}`
-  }
-  
-  return (
-    <Link 
-      href={href}
-      className={`flex items-center gap-2 p-2 rounded transition-colors ${
-        isActive
-          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-      }`}
-    >
-      <span className={`w-4 h-4 border rounded ${isActive ? 'bg-blue-600' : 'border-neutral-300 dark:border-neutral-600'}`} />
-      <span className="text-sm">{label}</span>
-    </Link>
-  )
-}
-
-// Helper component for rating filters
-function RatingFilterLink({ 
-  label, 
-  rating,
-  minRating,
-  category,
-  minPrice,
-  maxPrice
-}: { 
-  label: string
-  rating: number
-  minRating: number
-  category: string
-  minPrice: number
-  maxPrice: number
-}) {
-  const isActive = minRating === rating
-  
-  let href = `/?minRating=${rating}`
-  if (category) {
-    href += `&category=${encodeURIComponent(category)}`
-  }
-  if (minPrice > 0 || maxPrice < 1000) {
-    href += `&minPrice=${minPrice}&maxPrice=${maxPrice}`
-  }
-  
-  return (
-    <Link 
-      href={href}
-      className={`flex items-center gap-2 p-2 rounded transition-colors ${
-        isActive
-          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-      }`}
-    >
-      <span className={`w-4 h-4 border rounded ${isActive ? 'bg-blue-600' : 'border-neutral-300 dark:border-neutral-600'}`} />
-      <span className="text-sm">{label}</span>
-    </Link>
   )
 }
