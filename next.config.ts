@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: 'campussutra.com', // Replace with your actual domain
         pathname: '**',       // Allow all paths on this domain
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '**',
+      }
     ],
   },
 };

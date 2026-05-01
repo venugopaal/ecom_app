@@ -1,22 +1,58 @@
 "use client"
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useLanguage } from '../lib/LanguageContext'
+import { useEffect, useState } from 'react'
 
 export default function LanguageSwitcher() {
-  const router = useRouter()
-  const [lang, setLang] = useState('en')
+  const { language, setLanguage } = useLanguage()
+  const [mounted, setMounted] = useState(false)
 
-  const change = (l: string) => {
-    setLang(l)
-    // naive: navigate to root with locale as query param for demo
-    router.push(`/?lang=${l}`)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // On server render, show a placeholder button structure to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1">
+        <button className="px-3 py-1 rounded transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">EN</button>
+        <button className="px-3 py-1 rounded transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">HI</button>
+        <button className="px-3 py-1 rounded transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">TE</button>
+      </div>
+    )
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <button onClick={() => change('en')} className={`px-2 ${lang==='en'? 'font-semibold':''}`}>EN</button>
-      <button onClick={() => change('hi')} className={`px-2 ${lang==='hi'? 'font-semibold':''}`}>HI</button>
-      <button onClick={() => change('te')} className={`px-2 ${lang==='te'? 'font-semibold':''}`}>TE</button>
+    <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1">
+      <button 
+        onClick={() => setLanguage('en')}
+        className={`px-3 py-1 rounded transition-colors text-sm font-medium ${
+          language === 'en' 
+            ? 'bg-blue-600 text-white' 
+            : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+        }`}
+      >
+        EN
+      </button>
+      <button 
+        onClick={() => setLanguage('hi')}
+        className={`px-3 py-1 rounded transition-colors text-sm font-medium ${
+          language === 'hi' 
+            ? 'bg-blue-600 text-white' 
+            : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+        }`}
+      >
+        HI
+      </button>
+      <button 
+        onClick={() => setLanguage('te')}
+        className={`px-3 py-1 rounded transition-colors text-sm font-medium ${
+          language === 'te' 
+            ? 'bg-blue-600 text-white' 
+            : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+        }`}
+      >
+        TE
+      </button>
     </div>
   )
 }

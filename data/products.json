@@ -2,9 +2,9 @@
   {
     "id": "prod_1",
     "name": "Classic White T-Shirt",
-    "description": "Comfortable cotton t-shirt, unisex fit.",
+    "description": "Comfortable cotton t-shirt, unisex fit. Premium quality breathable fabric.",
     "price": 19.99,
-    "images": ["https://campussutra.com/cdn/shop/files/CSMSSTS7244_1_777d49f7-1a6a-4ab7-9b3c-1f40b93ece42.jpg"],
+    "images": ["https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop"],
     "category": "Clothing",
     "stock": 120,
     "ratings": 4.5
@@ -12,9 +12,9 @@
   {
     "id": "prod_2",
     "name": "Running Shoes",
-    "description": "Lightweight running shoes for everyday training.",
+    "description": "Lightweight running shoes for everyday training. Cushioned sole for comfort.",
     "price": 79.99,
-    "images": ["https://campussutra.com/cdn/shop/files/CSMSSTS7244_1_777d49f7-1a6a-4ab7-9b3c-1f40b93ece42.jpg"],
+    "images": ["https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop"],
     "category": "Footwear",
     "stock": 60,
     "ratings": 4.7
@@ -22,11 +22,71 @@
   {
     "id": "prod_3",
     "name": "Wireless Headphones",
-    "description": "Noise-cancelling over-ear headphones with long battery life.",
+    "description": "Noise-cancelling over-ear headphones with long battery life. Premium sound quality.",
     "price": 129.99,
-    "images": ["https://campussutra.com/cdn/shop/files/CSMSSTS7244_1_777d49f7-1a6a-4ab7-9b3c-1f40b93ece42.jpg"],
+    "images": ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=500&fit=crop"],
     "category": "Electronics",
     "stock": 30,
     "ratings": 4.6
+  },
+  {
+    "id": "prod_4",
+    "name": "Casual Denim Jeans",
+    "description": "Classic denim jeans for all seasons. Durable and stylish.",
+    "price": 59.99,
+    "images": ["https://images.unsplash.com/photo-1542272604-787c62d465d1?w=500&h=500&fit=crop"],
+    "category": "Clothing",
+    "stock": 85,
+    "ratings": 4.4
+  },
+  {
+    "id": "prod_5",
+    "name": "Leather Wallet",
+    "description": "Premium leather bifold wallet. Multiple card slots and coin pocket.",
+    "price": 39.99,
+    "images": ["https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&h=500&fit=crop"],
+    "category": "Accessories",
+    "stock": 150,
+    "ratings": 4.3
+  },
+  {
+    "id": "prod_6",
+    "name": "Smart Watch",
+    "description": "Advanced fitness tracking smartwatch with heart rate monitor.",
+    "price": 199.99,
+    "images": ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop"],
+    "category": "Electronics",
+    "stock": 45,
+    "ratings": 4.8
+  },
+  {
+    "id": "prod_7",
+    "name": "Sunglasses",
+    "description": "UV protection sunglasses with polarized lenses. Stylish design.",
+    "price": 89.99,
+    "images": ["https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&h=500&fit=crop"],
+    "category": "Accessories",
+    "stock": 70,
+    "ratings": 4.5
+  },
+  {
+    "id": "prod_8",
+    "name": "Winter Coat",
+    "description": "Warm and waterproof winter coat. Insulated with premium materials.",
+    "price": 149.99,
+    "images": ["https://images.unsplash.com/photo-1539533057440-7274bba2eba8?w=500&h=500&fit=crop"],
+    "category": "Clothing",
+    "stock": 40,
+    "ratings": 4.6
+  },
+  {
+    "id": "prod_9",
+    "name": "Sports Backpack",
+    "description": "Durable sports backpack with multiple compartments and USB charging port.",
+    "price": 69.99,
+    "images": ["https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&h=500&fit=crop"],
+    "category": "Accessories",
+    "stock": 95,
+    "ratings": 4.4
   }
 ]

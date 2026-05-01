@@ -1,50 +1,254 @@
-"use server"
 import { getProducts, getCategories } from "../lib/data";
 import ProductCard from "../components/ProductCard";
+import Link from "next/link";
+
+// Disable static generation for this page since it uses dynamic searchParams
+export const dynamic = 'force-dynamic'
 
 type Props = { searchParams?: { [key: string]: string | string[] | undefined } };
 
 export default async function Home({ searchParams }: Props) {
   const products = await getProducts();
   const categories = await getCategories();
+  
+  // Await searchParams since it's a Promise with force-dynamic
+  const params = await searchParams;
 
-  const q = typeof searchParams?.q === 'string' ? searchParams.q.toLowerCase() : ''
-  const category = typeof searchParams?.category === 'string' ? searchParams.category : ''
+  const q = typeof params?.q === 'string' ? params.q.toLowerCase() : ''
+  const category = typeof params?.category === 'string' ? params.category : ''
+  const minPrice = typeof params?.minPrice === 'string' ? parseFloat(params.minPrice) : 0
+  const maxPrice = typeof params?.maxPrice === 'string' ? parseFloat(params.maxPrice) : 1000
+  const minRating = typeof params?.minRating === 'string' ? parseFloat(params.minRating) : 0
 
   const filtered = products.filter((p: any) => {
     if (category && p.category !== category) return false
     if (q && !(p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q))) return false
+    if (p.price < minPrice || p.price > maxPrice) return false
+    if (p.ratings < minRating) return false
     return true
   })
 
   return (
-    <div className="mx-auto max-w-6xl p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Products</h1>
-        <div className="flex gap-2">
-          <form action="/" className="">
-            <input name="q" placeholder="Search" className="border px-2 py-1" />
-            <button className="ml-2 px-3 py-1 border">Search</button>
-          </form>
+    <>
+      {/* Hero Section */}
+      {!q && !category && (
+        <section className="bg-linear-to-r from-blue-600 to-blue-800 dark:from-blue-900 dark:to-blue-950 text-white py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h1 className="text-4xl sm:text-5xl font-bold mb-4">Welcome to Shop</h1>
+            <p className="text-blue-100 text-lg mb-6 max-w-2xl">Discover amazing products at unbeatable prices. Shop with confidence and enjoy fast shipping.</p>
+            <Link href="/" className="inline-block bg-white hover:bg-blue-50 text-blue-600 font-bold py-3 px-6 rounded-lg transition-colors">
+              Explore Now
+            </Link>
+          </div>
+        </section>
+      )}
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search Bar */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
+              {q ? `Search Results for "${q}"` : category ? `${category}` : 'Featured Products'}
+            </h2>
+            <form action="/" className="w-full sm:w-auto flex gap-2">
+              <input 
+                name="q" 
+                placeholder="Search products..." 
+                defaultValue={q}
+                className="flex-1 px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-600" 
+              />
+              <button type="submit" className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors whitespace-nowrap">
+                Search
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar - Categories & Filters */}
+          <aside className="lg:col-span-1">
+            <div className="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 p-6 sticky top-20 space-y-6">
+              {/* Categories */}
+              <div>
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">Categories</h3>
+                <nav className="space-y-2">
+                  <Link 
+                    href="/" 
+                    className={`block px-4 py-2 rounded-lg transition-colors ${
+                      !category 
+                        ? 'bg-blue-600 text-white font-medium' 
+                        : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                    }`}
+                  >
+                    All Products
+                  </Link>
+                  {categories.map((c: string) => {
+                    let href = `/?category=${encodeURIComponent(c)}`
+                    if (minPrice > 0 || maxPrice < 1000) {
+                      href += `&minPrice=${minPrice}&maxPrice=${maxPrice}`
+                    }
+                    if (minRating > 0) {
+                      href += `&minRating=${minRating}`
+                    }
+                    return (
+                      <Link
+                        key={c}
+                        href={href}
+                        className={`block px-4 py-2 rounded-lg transition-colors ${
+                          category === c
+                            ? 'bg-blue-600 text-white font-medium'
+                            : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                        }`}
+                      >
+                        {c}
+                      </Link>
+                    )
+                  })}
+                </nav>
+              </div>
+
+              {/* Price Range Filter */}
+              <div className="pt-6 border-t border-neutral-200 dark:border-neutral-700">
+                <h4 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4 uppercase tracking-wide">Price Range</h4>
+                <div className="space-y-2">
+                  <PriceFilterLink label="Under $50" value={50} minPrice={minPrice} maxPrice={maxPrice} category={category} />
+                  <PriceFilterLink label="$50 - $100" min={50} max={100} minPrice={minPrice} maxPrice={maxPrice} category={category} />
+                  <PriceFilterLink label="$100 - $200" min={100} max={200} minPrice={minPrice} maxPrice={maxPrice} category={category} />
+                  <PriceFilterLink label="Over $200" min={200} minPrice={minPrice} maxPrice={maxPrice} category={category} />
+                  {(minPrice > 0 || maxPrice < 1000) && (
+                    <Link 
+                      href={category ? `/?category=${encodeURIComponent(category)}` : "/"} 
+                      className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                    >
+                      Clear Price Filter
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              {/* Rating Filter */}
+              <div className="pt-6 border-t border-neutral-200 dark:border-neutral-700">
+                <h4 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4 uppercase tracking-wide">Rating</h4>
+                <div className="space-y-2">
+                  <RatingFilterLink label="4★ & up" rating={4} minRating={minRating} category={category} minPrice={minPrice} maxPrice={maxPrice} />
+                  <RatingFilterLink label="3★ & up" rating={3} minRating={minRating} category={category} minPrice={minPrice} maxPrice={maxPrice} />
+                  <RatingFilterLink label="2★ & up" rating={2} minRating={minRating} category={category} minPrice={minPrice} maxPrice={maxPrice} />
+                  <RatingFilterLink label="1★ & up" rating={1} minRating={minRating} category={category} minPrice={minPrice} maxPrice={maxPrice} />
+                  {minRating > 0 && (
+                    <Link 
+                      href={category ? `/?category=${encodeURIComponent(category)}${minPrice > 0 || maxPrice < 1000 ? `&minPrice=${minPrice}&maxPrice=${maxPrice}` : ''}` : "/"} 
+                      className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                    >
+                      Clear Rating Filter
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Products Grid */}
+          <section className="lg:col-span-3">
+            {filtered.length === 0 ? (
+              <div className="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-700 p-12 text-center">
+                <svg className="w-16 h-16 text-neutral-300 dark:text-neutral-700 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">No products found</h3>
+                <p className="text-neutral-600 dark:text-neutral-400">Try adjusting your search or filters</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filtered.map((p: any) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       </div>
+    </>
+  )
+}
 
-      <div className="flex gap-4">
-        <aside className="w-56">
-          <div className="mb-2 font-medium">Categories</div>
-          <ul>
-            <li><a href="/">All</a></li>
-            {categories.map((c: string) => (
-              <li key={c}><a href={`/?category=${encodeURIComponent(c)}`}>{c}</a></li>
-            ))}
-          </ul>
-        </aside>
-        <section className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((p: any) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </section>
-      </div>
-    </div>
+// Helper component for price filters
+function PriceFilterLink({ 
+  label, 
+  min = 0, 
+  max = 1000,
+  value,
+  minPrice,
+  maxPrice,
+  category
+}: { 
+  label: string
+  min?: number
+  max?: number
+  value?: number
+  minPrice: number
+  maxPrice: number
+  category: string
+}) {
+  const filterMax = value || max
+  const isActive = minPrice === min && maxPrice === filterMax
+  
+  let href = `/?minPrice=${min}&maxPrice=${filterMax}`
+  if (category) {
+    href += `&category=${encodeURIComponent(category)}`
+  }
+  
+  return (
+    <Link 
+      href={href}
+      className={`flex items-center gap-2 p-2 rounded transition-colors ${
+        isActive
+          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+      }`}
+    >
+      <span className={`w-4 h-4 border rounded ${isActive ? 'bg-blue-600' : 'border-neutral-300 dark:border-neutral-600'}`} />
+      <span className="text-sm">{label}</span>
+    </Link>
+  )
+}
+
+// Helper component for rating filters
+function RatingFilterLink({ 
+  label, 
+  rating,
+  minRating,
+  category,
+  minPrice,
+  maxPrice
+}: { 
+  label: string
+  rating: number
+  minRating: number
+  category: string
+  minPrice: number
+  maxPrice: number
+}) {
+  const isActive = minRating === rating
+  
+  let href = `/?minRating=${rating}`
+  if (category) {
+    href += `&category=${encodeURIComponent(category)}`
+  }
+  if (minPrice > 0 || maxPrice < 1000) {
+    href += `&minPrice=${minPrice}&maxPrice=${maxPrice}`
+  }
+  
+  return (
+    <Link 
+      href={href}
+      className={`flex items-center gap-2 p-2 rounded transition-colors ${
+        isActive
+          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+          : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+      }`}
+    >
+      <span className={`w-4 h-4 border rounded ${isActive ? 'bg-blue-600' : 'border-neutral-300 dark:border-neutral-600'}`} />
+      <span className="text-sm">{label}</span>
+    </Link>
   )
 }
